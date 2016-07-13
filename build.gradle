@@ -1,0 +1,40 @@
+group 'com.credentials'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+def libs = [
+        jsonLib: files('lib/json_lib-all-1.0-SNAPSHOT.jar'),
+]
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile libs.jsonLib
+}
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+
+    manifest {
+        attributes 'Implementation-Title': 'Credentials',
+                'Implementation-Version': version,
+                'Main-Class': 'Credentials'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+allprojects{
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    sourceSets {
+        main {
+            output.resourcesDir = output.classesDir
+        }
+
+    }
+}
